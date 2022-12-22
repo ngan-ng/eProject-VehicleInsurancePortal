@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using VehicleInsuranceClient.Models;
@@ -33,5 +34,44 @@ namespace VehicleInsuranceClient.Controllers
             return View("ListCertificates", model);
         }
 
+
+        /// <summary>
+        /// Create View for customer fill-in the Contract
+        /// </summary>
+        /// <returns>Contract View</returns>
+        [HttpGet]
+        [Route("Certificate/Contract/{estimateNo?}")]
+        public IActionResult Contract(string estimateNo)
+        {
+            if(String.IsNullOrEmpty(estimateNo))
+            {
+                TempData["EstimateNoErrMessage"] = "Please get your estimate!";
+                return RedirectToAction("Index", "Estimate", new EstimateClientViewModel());
+            }
+            var estimateCookie = Request.Cookies[estimateNo];
+            if (estimateCookie == null)
+            {
+                TempData["EstimateNoErrMessage"] = "Your estimate number is invalid! Please get another!";
+                return RedirectToAction("Index", "Estimate", new EstimateClientViewModel());
+            }
+
+
+            ViewBag.EstimateNo = JsonSerializer.Deserialize<EstimateClientViewModel>(estimateCookie.Normalize());
+
+            ContractModel contractModel = new ContractModel();
+            contractModel.estimateModel = JsonSerializer.Deserialize<EstimateClientViewModel>(estimateCookie.Normalize());
+
+            return View(contractModel);
+        }
+
+        [HttpPost]
+        public IActionResult Contract([FromBody] ContractModel model)
+        {
+            if (ModelState.IsValid)
+            {
+
+            }
+            return View(model);
+        }
     }
 }

@@ -14,7 +14,10 @@
     });
     // **** End of Toan Zone ****
 
-
+    // Annouce if customer not make an estimate yet
+    if ($("#estimateNoErrMessage").length) {
+        alert($("#estimateNoErrMessage").val());
+    }
 
     // **** Ngan Zone ****
     $.ajax({

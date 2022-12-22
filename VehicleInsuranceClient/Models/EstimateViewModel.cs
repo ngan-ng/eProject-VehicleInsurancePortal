@@ -41,10 +41,10 @@ namespace VehicleInsuranceClient.Models
         public string PolicyType { get; set; } = string.Empty;
         public int? OptionDetailsId { get; set; }
         [Required(ErrorMessage = "Start date is required")]
-        [DataType(DataType.DateTime)]
-        public DateTime? PolicyDate { get; set; }
+        [DataType(DataType.Date)]
+        public DateTime? PolicyDate { get; set; } = null!;
 
-        public int? PolicyDuration { get; set; }
+        public int PolicyDuration { get; set; } = 12;
 
         public decimal? Premium { get; set; }
         [Required(ErrorMessage = "Vehicle Rate is required")]

@@ -17,10 +17,17 @@
         <h3 class="fw-semibold text-light">Your Car Insurance Quote Estimate</h3>
     </div>
 
-    <div class="container w-50 bg-white p-3 rounded">
+    <div class="container w-50 bg-white p-3 rounded" style="margin-top:-58px;">
         <h3 class="pb1">
             Your Estimate
         </h3>
+        @{
+    string estimateNoErrMessage = TempData["EstimateNoErrMessage"] as string;
+    if (!String.IsNullOrEmpty(estimateNoErrMessage))
+    {
+        <input id="estimateNoErrMessage" type="hidden" value="@estimateNoErrMessage" />
+    }
+}
         <hr class="bg-warning pt-0 mt-0" />
         <div>
             <span class="d-flex">
@@ -150,7 +157,7 @@
                                     </div>
                                     <small class="d-block text-secondary">Estimate valid until @DateTime.Today.AddDays(Program.CookieEstimateDuration).ToString("ddMMMyyyy")</small>
                                 </div>
-                                <a asp-action="Contract" asp-controller="Estimate" id="btn_buynow" class="align-self-center btn btn_estimate rounded-1" style="background-color: rgb(238, 209, 46);" role="button">
+                                <a asp-controller="Certificate" asp-action="Contract" asp-route-estimateNo="@Model.EstimateNo" id="btn_buynow" class="align-self-center btn btn_estimate rounded-1" style="background-color: rgb(238, 209, 46);" role="button">
                                     <small style="font-size: 12px;">BUY NOW</small>
                                 </a>
                             </div>

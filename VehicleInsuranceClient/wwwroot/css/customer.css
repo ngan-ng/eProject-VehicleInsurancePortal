@@ -596,6 +596,15 @@ footer {
     font-size: 18px;
 }
 
+/****** Contract ******/
+.summaryCard {
+    background-color: #fff;
+    border: none
+}
+
+.summaryCard .upper {
+    padding: 13px
+}
 
 /*################################### Personal Details #########################################*/
 
