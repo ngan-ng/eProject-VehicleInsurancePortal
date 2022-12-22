@@ -58,14 +58,14 @@ namespace VehicleInsuranceClient.Controllers
 
             ViewBag.EstimateNo = JsonSerializer.Deserialize<EstimateClientViewModel>(estimateCookie.Normalize());
 
-            ContractModel contractModel = new ContractModel();
+            CertificateContractModel contractModel = new CertificateContractModel();
             contractModel.estimateModel = JsonSerializer.Deserialize<EstimateClientViewModel>(estimateCookie.Normalize());
 
             return View(contractModel);
         }
 
         [HttpPost]
-        public IActionResult Contract([FromBody] ContractModel model)
+        public IActionResult Contract([FromBody] CertificateContractModel model)
         {
             if (ModelState.IsValid)
             {

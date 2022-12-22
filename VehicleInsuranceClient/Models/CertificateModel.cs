@@ -35,7 +35,7 @@ namespace VehicleInsuranceClient.Models
         public int PolicyDuration { get; set; }
         public DateTime PolicyDate { get; set; }
     }
-    public class ContractModel
+    public class CertificateContractModel
     {
         [Required(ErrorMessage = "Vehicle owner name is required")]
         public string CustomerName { get; set; } = String.Empty!;
