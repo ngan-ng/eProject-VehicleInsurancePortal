@@ -43,7 +43,8 @@ namespace VehicleInsuranceClient.Models
         [Required(ErrorMessage = "Start date is required")]
         [DataType(DataType.Date)]
         public DateTime? PolicyDate { get; set; } = null!;
-
+        [DataType(DataType.Date)]
+        public DateTime? EstimateDate { get; set; } = DateTime.Now!;
         public int PolicyDuration { get; set; } = 12;
 
         public decimal? Premium { get; set; }

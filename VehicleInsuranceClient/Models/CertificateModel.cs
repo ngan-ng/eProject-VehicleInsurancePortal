@@ -35,7 +35,12 @@ namespace VehicleInsuranceClient.Models
         public int PolicyDuration { get; set; }
         public DateTime PolicyDate { get; set; }
     }
-    public class CertificateContractModel
+    public class EstimationContractModel
+    {
+        public ContractModel? Contract { get; set; } = null!;
+        public EstimateClientViewModel? Estimation { get; set; }
+    }
+    public class ContractModel
     {
         [Required(ErrorMessage = "Vehicle owner name is required")]
         public string CustomerName { get; set; } = String.Empty!;
@@ -56,8 +61,6 @@ namespace VehicleInsuranceClient.Models
         [Required(ErrorMessage = "Engine number is required")]
         [RegularExpression("^[a-zA-Z0-9]{6,15}$", ErrorMessage = "6-15 characters not contain the specials")]
         public string VehicleEngineNumber { get; set; } = null!;
-        public string Prove { get; set; }
-        public EstimateClientViewModel estimateModel { get; set; }
-
+        public string? Prove { get; set; }
     }
 }

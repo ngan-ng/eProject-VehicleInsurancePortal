@@ -11,9 +11,10 @@ namespace VehicleInsuranceClient.Controllers
     {
         public static List<VehicleViewModel>? Vehicles;
         public static List<PoliciesViewModel>? Policies;
-        public static List<SelectListItem> vehicleNamesItems;
-        public static List<SelectListItem> vehicleModelsItems;
-        public static List<SelectListItem> vehicleVersionsItems;
+        public static List<SelectListItem>? vehicleNamesItems;
+        public static List<SelectListItem>? vehicleModelsItems;
+        public static List<SelectListItem>? vehicleVersionsItems;
+        EstimationContractModel? estimationContract;
         public IActionResult Index()
         {
             if (Vehicles == null || Policies == null)
@@ -85,11 +86,14 @@ namespace VehicleInsuranceClient.Controllers
                                 }
                             }
                             model.EstimateNo = int.Parse(builder.ToString(0, digits));
-                            CreateCookie(model.EstimateNo.ToString(), JsonSerializer.Serialize(model));
+
+                            estimationContract = new EstimationContractModel { Estimation = model, Contract = null };
+                            CreateCookie(model.EstimateNo.ToString(), JsonSerializer.Serialize(estimationContract));
                         }
                         else
                         {
-                            CreateCookie(model.EstimateNo.ToString(), JsonSerializer.Serialize(model));
+                            estimationContract.Estimation = model;
+                            CreateCookie(model.EstimateNo.ToString(), JsonSerializer.Serialize(estimationContract));
                         }
                     }
                     catch (Exception)
