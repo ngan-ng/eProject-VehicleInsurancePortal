@@ -1,4 +1,4 @@
-﻿@model VehicleInsuranceClient.Models.EstimationContractModel
+﻿@model VehicleInsuranceClient.Models.ContractModel
 
 @{
     ViewData["Title"] = "Contract";
@@ -11,7 +11,7 @@
             <span>Reference Number: </span><span><strong>@Html.DisplayFor(m=>m.Estimation.EstimateNo)</strong></span>
         </h4>
     </div>
-    @using (Html.BeginForm("CertificateRegister", "Certificate", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    @using (Html.BeginForm("CreateCertificate", "Certificate", FormMethod.Post, new { enctype = "multipart/form-data" }))
     {
         <div class="row">
             <div class="col-md-6 p-5 pt-4 ">
@@ -19,21 +19,21 @@
                 <div class="w-100 p-4">
                     <div class="row">
                         <h3 class="pb1">
-                            Owner
+                            Customer Information
                         </h3>
                         <div class="col-md-6">
                             <label for="CustomerName" class="form-label">Your name</label>
-                            @Html.EditorFor(m=>m.Contract.CustomerName, new { htmlAttributes = new { placeholder="Vehicle owner name", @class = "form-control" }})
+                            @Html.EditorFor(m=>m.Contract.CustomerName, new {  htmlAttributes = new {@readonly = "readonly", placeholder="Vehicle owner name", @class = "form-control" }})
                             <p><span asp-validation-for="Contract.CustomerName" class="text-danger small"></span></p>
                         </div>
                         <div class="col-md-6">
                             <label for="owner" class="form-label">Phone number</label>
-                            @Html.EditorFor(m=>m.Contract.CustomerPhone, new { htmlAttributes = new { placeholder="Phone number", @class = "form-control" }})
+                            @Html.EditorFor(m=>m.Contract.CustomerPhone, new { htmlAttributes = new {@readonly = "readonly", placeholder="Phone number", @class = "form-control" }})
                             <p><span asp-validation-for="Contract.CustomerPhone" class="text-danger small"></span></p>
                         </div>
                         <div class="col">
                             <label for="owner" class="form-label">Address</label>
-                            @Html.EditorFor(m=>m.Contract.CustomerAddress, new { htmlAttributes = new { placeholder="Address", @class = "form-control" }})
+                            @Html.EditorFor(m=>m.Contract.CustomerAddress, new { htmlAttributes = new {@readonly = "readonly", placeholder="Address", @class = "form-control" }})
                             <p><span asp-validation-for="Contract.CustomerAddress" class="text-danger small"></span></p>
                         </div>
                     </div>
@@ -77,7 +77,7 @@
                             <small>PREVIOUS</small>
                         </a>
                         <button type="submit" role="button" id="" class="btn btn-lg rounded-1 ms-3" style="background-color: rgb(238, 209, 46);">
-                            <strong style="font-size: 14px;">REGISTER</strong>
+                            <strong style="font-size: 15px;">SUBMIT</strong>
                         </button>
                     </div>
                 </div>
@@ -109,8 +109,13 @@
                                             <div class="d-flex justify-content-between">
                                                 <h5>@Html.Label("Start Date ")</h5>
                                                 <h5>
-                                                    @*<input type="text" asp-for="@Model.Estimation.PolicyDate" value="@Model.Estimation.PolicyDate" disabled readonly class="text-end text-dark bg-white border-0" />
-                                                    @Html.TextBoxFor(m => m.Estimation.PolicyDate, new { disabled = "disabled", @readonly = "readonly", @class="border-0 bg-white text-end text-dark" })*@
+                                                    @Html.HiddenFor(m => m.Estimation.VehicleName)
+                                                    @Html.HiddenFor(m => m.Estimation.VehicleModel)
+                                                    @Html.HiddenFor(m => m.Estimation.VehicleVersion)
+                                                    @Html.HiddenFor(m => m.Estimation.VehicleRate)
+                                                    @Html.HiddenFor(m => m.Estimation.EstimateDate)
+                                                    @Html.HiddenFor(m => m.Estimation.PolicyDate)
+                                                    @Model.Estimation.PolicyDate.Value.ToString("ddMMMyyyy")
                                                 </h5>
                                             </div>
                                             <div class="d-flex justify-content-between ">
@@ -124,6 +129,7 @@
                                     <div class="policyDuration mb-4">
                                         <div class="d-flex justify-content-between rounded-1 py-2 px-3 shadow-sm h5">
                                             <h5 class="fw-bold">Annual premium</h5>
+                                            @Html.HiddenFor(m => m.Estimation.Premium)
                                             <h5>@String.Format("{0, 0:C2}" ,Model.Estimation.Premium)</h5>
                                         </div>
                                     </div>
@@ -141,7 +147,8 @@
                                         <div class="d-flex justify-content-between rounded-1 py-2 px-3 shadow-sm">
                                             <h5 class="fw-bold">Your policy</h5>
                                             <p>
-                                                @Html.DisplayFor(m => m.Estimation.PolicyType)
+                                                @Html.HiddenFor(m => m.Estimation.PolicyId)
+                                                @ViewBag.PolicyType
                                             </p>
                                         </div>
                                     </div>
@@ -157,7 +164,6 @@
                     </div>
                 </div>
             </div>
-
 
         </div>
     }

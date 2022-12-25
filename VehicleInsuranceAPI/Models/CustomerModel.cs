@@ -2,9 +2,7 @@
 {
     public class CustomerModel
     {
-        public string Username { get; set; } = null!;
-
-        public string Password { get; set; } = null!;
+        public string CustomerEmail { get; set; } = null!;
 
         public string CustomerName { get; set; } = null!;
 

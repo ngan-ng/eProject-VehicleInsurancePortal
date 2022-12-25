@@ -26,7 +26,7 @@ namespace VehicleInsuranceAPI.Responsitory
         }
         public async Task<Customer> CheckLogin(string username, string password)
         {
-            var model = await db.Customers.SingleOrDefaultAsync(c => c.Username.Equals(username) && c.Password.Equals(password));
+            var model = await db.Customers.SingleOrDefaultAsync(c => c.CustomerEmail.Equals(username) && c.Password.Equals(password));
             if (model != null)
             {
                 return model;
@@ -39,7 +39,7 @@ namespace VehicleInsuranceAPI.Responsitory
         public async Task<CustomerDto> Login(LoginDto req)
         {
             CustomerDto result = new CustomerDto();
-            var customer = await db.Customers.SingleOrDefaultAsync(c => c.Username.Equals(req.Username));
+            var customer = await db.Customers.SingleOrDefaultAsync(c => c.CustomerEmail.Equals(req.Username));
             if (customer != null)
             {
                 if (customer.Password == req.Password)
@@ -47,7 +47,7 @@ namespace VehicleInsuranceAPI.Responsitory
                     result = new CustomerDto
                     {
                         Id = customer.Id,
-                        Username = customer.Username,
+                        CustomerEmail = customer.CustomerEmail,
                         Password = customer.Password,
                         CustomerAddress = customer.CustomerAddress,
                         CustomerName = customer.CustomerName,

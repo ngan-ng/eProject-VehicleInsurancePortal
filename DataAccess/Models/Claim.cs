@@ -9,9 +9,7 @@ public partial class Claim
 
     public int ClaimNo { get; set; }
 
-    public int CertificateId { get; set; }
-
-    public string CustomerName { get; set; } = null!;
+    public int PolicyNo { get; set; }
 
     public string PlaceOfAccident { get; set; } = null!;
 
@@ -21,5 +19,5 @@ public partial class Claim
 
     public decimal ClaimableAmount { get; set; }
 
-    public virtual Certificate Certificate { get; set; } = null!;
+    public virtual Certificate PolicyNoNavigation { get; set; } = null!;
 }

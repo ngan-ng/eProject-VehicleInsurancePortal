@@ -45,37 +45,34 @@ namespace VehicleInsuranceClient.Controllers
             }
 
         }
-        [HttpPost("Login")]
 
+        [HttpPost("Login")]
         public async Task<IActionResult> Login(CustomerDto cus, string? returnUrl)
         {
             try
             {
                 client.BaseAddress = new Uri(urlCustomer);
-                if (cus.Username != null)
+                if (cus.CustomerEmail != null)
                 {
                     var req = new LoginDto
                     {
-                        Username = cus.Username,
+                        Username = cus.CustomerEmail,
                         Password = cus.Password
                     };
                     var res = await client.PostAsync(RequestUriContants.Login, new StringContent(JsonConvert.SerializeObject(req), Encoding.UTF8, "application/json"));
                     var customer = JsonConvert.DeserializeObject<CustomerDto>(await res.Content.ReadAsStringAsync());
                     if (customer != null)
                     {
-                       
-
                             //await client.PutAsJsonAsync<DataAccess.Models.Customer>(urlCustomer, res);
                             var claim = new List<Claim>();
-                            claim.Add(new Claim(ClaimTypes.Name, customer.Username));
+                            claim.Add(new Claim(ClaimTypes.Email, customer.CustomerEmail));
                             claim.Add(new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()));
                             claim.Add(new Claim(ClaimTypes.Role, UserRoles.User));
-                        new Claim("userid", customer.Username);
+                        new Claim("userid", customer.CustomerEmail);
                             var claimIdentify = new ClaimsIdentity(claim, CookieAuthenticationDefaults.AuthenticationScheme);
                             var claimPrincipal = new ClaimsPrincipal(claimIdentify);
                             await HttpContext.SignInAsync(claimPrincipal);
                             return Json(new { status = true, msg = LoginMessages.Suscess, url = returnUrl });
-                       
                     }
                     else
                     {

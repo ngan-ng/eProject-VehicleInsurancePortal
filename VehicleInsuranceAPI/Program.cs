@@ -12,7 +12,11 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddRouting();
-builder.Services.AddDbContext<VipDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStrings")));
+builder.Services.AddDbContext<VipDbContext>(options => {
+
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStrings"));
+    options.EnableSensitiveDataLogging(true);
+    });
 
 builder.Services.AddScoped<IAdmin, AdminService>();
 builder.Services.AddScoped<ICustomer, CustomerService>();

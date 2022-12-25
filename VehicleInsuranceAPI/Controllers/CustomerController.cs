@@ -18,10 +18,11 @@ namespace VehicleInsuranceAPI.Controllers
         private readonly VipDbContext _context;
         private readonly ICustomer service;
         private readonly IConfiguration _configuration;
-        public CustomerController(ICustomer service)
+        public CustomerController(ICustomer service, VipDbContext db)
         {
             this.service = service;
             this._configuration = _configuration;
+            _context = db;
         }
 
         [HttpPost("Login")]
@@ -87,5 +88,17 @@ namespace VehicleInsuranceAPI.Controllers
         //    return "Error";
         //}
 
+        [HttpGet]
+        [Route("GetCustomer/{id}")]
+        public IActionResult GetCustomer(int id)
+        {
+            return Ok(_context.Customers.Where(c => c.Id == id)
+                            .Select(c => new {
+                                CustomerEmail = c.CustomerEmail,
+                                CustomerName = c.CustomerName,
+                                CustomerPhone = c.CustomerPhone,
+                                CustomerAddress = c.CustomerAddress
+                            }).FirstOrDefault());
+        }
     }
 }

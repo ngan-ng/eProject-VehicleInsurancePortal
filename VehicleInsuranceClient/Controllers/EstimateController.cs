@@ -9,17 +9,28 @@ namespace VehicleInsuranceClient.Controllers
 {
     public class EstimateController : Controller
     {
-        public static List<VehicleViewModel>? Vehicles;
-        public static List<PoliciesViewModel>? Policies;
+        static List<VehicleViewModel>? Vehicles;
+        static List<PoliciesViewModel>? Policies;
+        public List<PoliciesViewModel> GetPolicies()
+        {
+            return Policies;
+        }
         public static List<SelectListItem>? vehicleNamesItems;
         public static List<SelectListItem>? vehicleModelsItems;
         public static List<SelectListItem>? vehicleVersionsItems;
-        EstimationContractModel? estimationContract;
+        private static readonly EstimateController? _instance;
+        public static EstimateController Instance { get { return _instance ?? new EstimateController(); } }
+        public EstimateController()
+        {
+            Vehicles = InitializeVehicles();
+            Policies = InitializePolicies();
+        }
         public IActionResult Index()
         {
             if (Vehicles == null || Policies == null)
             {
-                InitializeEstimateView();
+                Vehicles = InitializeVehicles();
+                Policies = InitializePolicies();
             }
             //ViewBag.Vehicles = Vehicles;
             //ViewBag.Policies = Policies;
@@ -45,11 +56,11 @@ namespace VehicleInsuranceClient.Controllers
             ViewBag.VehicleModels = vehicleModelsItems;
             ViewBag.VehicleVersions = vehicleVersionsItems;
             ViewBag.Policies = Policies;
-            return View(new EstimateClientViewModel());
+            return View(new EstimateViewModel());
         }
 
         [HttpPost]
-        public IActionResult Estimate([FromForm] EstimateClientViewModel model)
+        public IActionResult Estimate([FromForm] EstimateViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -61,7 +72,7 @@ namespace VehicleInsuranceClient.Controllers
                         StringContent stringContent = new StringContent(JsonSerializer.
                                     Serialize(new
                                     {
-                                        PolicyType = model.PolicyType,
+                                        PolicyId = model.PolicyId,
                                         VehicleName = model.VehicleName,
                                         VehicleModel = model.VehicleModel,
                                         VehicleVersion = model.VehicleVersion,
@@ -86,15 +97,10 @@ namespace VehicleInsuranceClient.Controllers
                                 }
                             }
                             model.EstimateNo = int.Parse(builder.ToString(0, digits));
-
-                            estimationContract = new EstimationContractModel { Estimation = model, Contract = null };
-                            CreateCookie(model.EstimateNo.ToString(), JsonSerializer.Serialize(estimationContract));
                         }
-                        else
-                        {
-                            estimationContract.Estimation = model;
-                            CreateCookie(model.EstimateNo.ToString(), JsonSerializer.Serialize(estimationContract));
-                        }
+                        ContractModel contract = new ContractModel { Estimation = model, Contract = new Contract () };
+                        contract.Contract.CustomerName = String.Empty;
+                        CreateCookie(model.EstimateNo.ToString(), JsonSerializer.Serialize(contract));
                     }
                     catch (Exception)
                     {
@@ -113,32 +119,7 @@ namespace VehicleInsuranceClient.Controllers
             }
         }
 
-        /// <summary>
-        /// Retrieve all policy types from Db by calling API and display in Estimate View
-        /// </summary>
-        /// <returns>Policy types</returns>
-        public IActionResult GetEstimatePolicies()
-        {
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    var response = client.GetAsync(Program.ApiAddress + "/Estimate/GetPolicies").Result;
-                    var data = response.Content.ReadAsStringAsync().Result;
-                    if (data != null)
-                    {
-                        List<PoliciesViewModel> policies = JsonSerializer.Deserialize<List<PoliciesViewModel>>(data)!;
-                        return View("Policies", policies);
-                    }
-                }
-                catch (Exception)
-                {
-
-                }
-            }
-            return View("Index", null);
-        }
-        public static void InitializeEstimateView()
+        public static List<VehicleViewModel> InitializeVehicles()
         {
             try
             {
@@ -151,7 +132,20 @@ namespace VehicleInsuranceClient.Controllers
                     {
                         Vehicles = JsonSerializer.Deserialize<List<VehicleViewModel>>(dataVehicles)!;
                     }
-
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return Vehicles?? new List<VehicleViewModel>();
+        }
+        public static List<PoliciesViewModel> InitializePolicies()
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
                     var responsePolicies = client.GetAsync(Program.ApiAddress + "/Estimate/GetPolicies").Result;
                     var dataPolicies = responsePolicies.Content.ReadAsStringAsync().Result;
                     if (dataPolicies != null)
@@ -164,6 +158,7 @@ namespace VehicleInsuranceClient.Controllers
             {
                 throw;
             }
+            return Policies ?? new List<PoliciesViewModel>();
         }
         /// <summary>
         /// This method is to create Cookie based on key and value 
@@ -175,7 +170,9 @@ namespace VehicleInsuranceClient.Controllers
             CookieOptions options = new CookieOptions()
             {
                 //Expires = DateTime.Now.AddMinutes(5)
-                Expires = DateTime.Now.AddDays(Program.CookieEstimateDuration)
+                Expires = DateTime.Now.AddDays(Program.CookieEstimateDuration),
+                Secure = true,
+                SameSite = SameSiteMode.None
             };
             Response.Cookies.Append(key, value, options);
         }
