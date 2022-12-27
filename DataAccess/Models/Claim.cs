@@ -13,11 +13,17 @@ public partial class Claim
 
     public string PlaceOfAccident { get; set; } = null!;
 
-    public string DateOfAccident { get; set; } = null!;
+    public DateTime DateOfAccident { get; set; }
+
+    public string Description { get; set; } = null!;
+
+    public string? Status { get; set; }
+
+    public string? Image { get; set; }
 
     public decimal InsuredAmount { get; set; }
 
-    public decimal ClaimableAmount { get; set; }
+    public decimal? ClaimableAmount { get; set; }
 
     public virtual Certificate PolicyNoNavigation { get; set; } = null!;
 }

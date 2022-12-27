@@ -25,6 +25,8 @@ namespace VehicleInsuranceClient.Controllers
             Vehicles = InitializeVehicles();
             Policies = InitializePolicies();
         }
+
+        [HttpGet]
         public IActionResult Index()
         {
             if (Vehicles == null || Policies == null)
@@ -60,7 +62,7 @@ namespace VehicleInsuranceClient.Controllers
         }
 
         [HttpPost]
-        public IActionResult Estimate([FromForm] EstimateViewModel model)
+        public IActionResult Index([FromForm] EstimateViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -177,17 +179,5 @@ namespace VehicleInsuranceClient.Controllers
             Response.Cookies.Append(key, value, options);
         }
 
-        /// <summary>
-        /// This method is to remove Cookie based on key
-        /// </summary>
-        /// <param name="key"></param>
-        public void RemoveCookie(string key)
-        {
-            CookieOptions options = new CookieOptions
-            {
-                Expires = DateTime.Now.AddDays(-1)
-            };
-            Response.Cookies.Append(key, String.Empty, options);
-        }
     } // End of EstimateController
 }

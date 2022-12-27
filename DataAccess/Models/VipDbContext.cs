@@ -34,18 +34,17 @@ public partial class VipDbContext : DbContext
     public virtual DbSet<Vehicle> Vehicles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=TOANN\\SQLEXPRESS;Database=VIP_DB;Trusted_Connection=True;TrustServerCertificate=Yes;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Admin>(entity =>
         {
-            entity.HasKey(e => e.AdminId).HasName("PK__Admin__719FE4887FAC2685");
+            entity.HasKey(e => e.AdminId).HasName("PK__Admin__719FE48821D14361");
 
             entity.ToTable("Admin");
 
-            entity.HasIndex(e => e.UserName, "UQ__Admin__C9F2845671DF754E").IsUnique();
+            entity.HasIndex(e => e.UserName, "UQ__Admin__C9F28456F16982E7").IsUnique();
 
             entity.Property(e => e.Password)
                 .HasMaxLength(50)
@@ -57,11 +56,11 @@ public partial class VipDbContext : DbContext
 
         modelBuilder.Entity<Certificate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC276D0A8A9E");
+            entity.HasKey(e => e.Id).HasName("PK__Certific__3214EC278D394A5D");
 
             entity.ToTable("Certificate");
 
-            entity.HasIndex(e => e.PolicyNo, "UQ__Certific__2E132196421A2A99").IsUnique();
+            entity.HasIndex(e => e.PolicyNo, "UQ__Certific__2E13219639E99FA3").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
@@ -93,19 +92,27 @@ public partial class VipDbContext : DbContext
 
         modelBuilder.Entity<Claim>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Claim__3214EC27C1FA3A80");
+            entity.HasKey(e => e.Id).HasName("PK__Claim__3214EC2791069426");
 
             entity.ToTable("Claim");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.ClaimableAmount).HasColumnType("money");
-            entity.Property(e => e.DateOfAccident)
-                .HasMaxLength(50)
+            entity.Property(e => e.DateOfAccident).HasColumnType("date");
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.Image)
+                .HasMaxLength(1000)
                 .IsUnicode(false);
             entity.Property(e => e.InsuredAmount).HasColumnType("money");
             entity.Property(e => e.PlaceOfAccident)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValueSql("('Lodged')");
 
             entity.HasOne(d => d.PolicyNoNavigation).WithMany(p => p.Claims)
                 .HasPrincipalKey(p => p.PolicyNo)
@@ -116,15 +123,13 @@ public partial class VipDbContext : DbContext
 
         modelBuilder.Entity<CompanyExpense>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Company___3214EC27C699D678");
+            entity.HasKey(e => e.Id).HasName("PK__Company___3214EC27160120EA");
 
             entity.ToTable("Company_Expense");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.AmountOfExpense).HasColumnType("money");
-            entity.Property(e => e.DateOfExpense)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.DateOfExpense).HasColumnType("date");
             entity.Property(e => e.TypeOfExpense)
                 .HasMaxLength(50)
                 .IsUnicode(false);
@@ -132,13 +137,13 @@ public partial class VipDbContext : DbContext
 
         modelBuilder.Entity<Customer>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Customer__3214EC275560144C");
+            entity.HasKey(e => e.Id).HasName("PK__Customer__3214EC27A0B23D07");
 
             entity.ToTable("Customer");
 
-            entity.HasIndex(e => e.CustomerPhone, "UQ__Customer__390618B31A17558C").IsUnique();
+            entity.HasIndex(e => e.CustomerPhone, "UQ__Customer__390618B3071639B0").IsUnique();
 
-            entity.HasIndex(e => e.CustomerEmail, "UQ__Customer__3A0CE74C4422CD63").IsUnique();
+            entity.HasIndex(e => e.CustomerEmail, "UQ__Customer__3A0CE74CD7DC1D43").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.CustomerAddress)
@@ -157,11 +162,11 @@ public partial class VipDbContext : DbContext
 
         modelBuilder.Entity<CustomerBill>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Customer__3214EC27C5A55EBE");
+            entity.HasKey(e => e.Id).HasName("PK__Customer__3214EC2710E927F0");
 
             entity.ToTable("CustomerBill");
 
-            entity.HasIndex(e => e.BillNo, "UQ__Customer__11F284185A15CC31").IsUnique();
+            entity.HasIndex(e => e.BillNo, "UQ__Customer__11F284180B06D542").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.Amount).HasColumnType("money");
@@ -182,11 +187,11 @@ public partial class VipDbContext : DbContext
 
         modelBuilder.Entity<Estimate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Estimate__3214EC27F295AF4A");
+            entity.HasKey(e => e.Id).HasName("PK__Estimate__3214EC271B7FFE2D");
 
             entity.ToTable("Estimate");
 
-            entity.HasIndex(e => e.EstimateNo, "UQ__Estimate__ABEB835B51750B26").IsUnique();
+            entity.HasIndex(e => e.EstimateNo, "UQ__Estimate__ABEB835B44EC5B65").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.EstimateDate).HasColumnType("date");
@@ -204,15 +209,15 @@ public partial class VipDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            //entity.HasOne(d => d.Policy).WithMany(p => p.Estimates)
-            //    .HasForeignKey(d => d.PolicyId)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_Estimate_Policy");
+            entity.HasOne(d => d.Policy).WithMany(p => p.Estimates)
+                .HasForeignKey(d => d.PolicyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Estimate_Policy");
         });
 
         modelBuilder.Entity<Policy>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Policy__3214EC2714F29FAF");
+            entity.HasKey(e => e.Id).HasName("PK__Policy__3214EC2765A29F2E");
 
             entity.ToTable("Policy");
 
@@ -231,11 +236,11 @@ public partial class VipDbContext : DbContext
 
         modelBuilder.Entity<Vehicle>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Vehicle__3214EC27E578E36D");
+            entity.HasKey(e => e.Id).HasName("PK__Vehicle__3214EC272C077D3E");
 
             entity.ToTable("Vehicle");
 
-            entity.HasIndex(e => e.VehicleNumber, "UQ__Vehicle__ABAD88599D2C41C8").IsUnique();
+            entity.HasIndex(e => e.VehicleNumber, "UQ__Vehicle__ABAD8859A34A87AA").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.VehicleBodyNumber)

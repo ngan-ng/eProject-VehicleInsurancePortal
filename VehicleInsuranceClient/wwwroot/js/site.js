@@ -1,4 +1,5 @@
-﻿$(document).ready(function () {
+﻿var initialLoad = true;
+$(document).ready(function () {
     var apiurl = "https://localhost:7008/api";
 
     // **** Toann Zone ****
@@ -12,6 +13,30 @@
     $("#VehicleModel").change(function () {
         changeVehicleVersionOptions($(this).val());
     });
+    function checkAgreementBox() {
+        if ($("#checkBoxAgree").is(":checked") == false) {
+            $("#checkBoxAgreeErr").removeClass("d-none");
+        } else {
+            $("#checkBoxAgreeErr").addClass("d-none");
+        }
+    }
+    // Checkbox for agreement of certificate contract
+    $("#formContract").on("submit", function (e) {
+        
+        if ($("#checkBoxAgree").is(":checked") == false) {
+            e.preventDefault();
+            alert("Please agree with our terms and conditions!");
+            checkAgreementBox();
+        }
+
+    });
+    $("#checkBoxAgree").change(function () {
+        checkAgreementBox();
+    });
+    if (initialLoad) {
+        $("#checkBoxAgreeErr").addClass("d-none");
+    }
+
     // **** End of Toan Zone ****
 
     // Annouce if customer not make an estimate yet
@@ -30,7 +55,7 @@
     });
     // **** End of Ngan Zone ****
 
-
+    initialLoad = false;
 }); // End of document.ready()
 
 // **** Toann Functions Zone
@@ -109,6 +134,8 @@ function removeDuplicateValues() {
         }
     });
 }
+
+
 
 // **** End of Toann Functions Zone
 

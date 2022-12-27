@@ -27,5 +27,5 @@ public partial class Estimate
 
     public virtual ICollection<Certificate> Certificates { get; } = new List<Certificate>();
 
-    //public virtual Policy Policy { get; set; }
+    public virtual Policy Policy { get; set; } = null!;
 }

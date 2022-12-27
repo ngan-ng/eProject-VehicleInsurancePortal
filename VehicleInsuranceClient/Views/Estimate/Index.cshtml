@@ -19,23 +19,23 @@
             Your Estimate
         </h3>
         @{
-    string estimateNoErrMessage = TempData["EstimateNoErrMessage"] as string;
-    if (!String.IsNullOrEmpty(estimateNoErrMessage))
-    {
-        <input id="estimateNoErrMessage" type="hidden" value="@estimateNoErrMessage" />
-    }
-}
+            string estimateNoErrMessage = TempData["EstimateNoErrMessage"] as string;
+            if (!String.IsNullOrEmpty(estimateNoErrMessage))
+            {
+                <input id="estimateNoErrMessage" type="hidden" value="@estimateNoErrMessage" />
+            }
+        }
         <hr class="bg-warning pt-0 mt-0" />
         <div>
             <span class="d-flex">
                 Your car
             </span>
             @*<form class="row g-3" id="EstimateForm" method="post" enctype="multipart/form-data" asp-controller="Estimate" asp-action="Estimate">*@
-            @using (Html.BeginForm("Estimate", "Estimate", FormMethod.Post, new { @class = "row g-3" }))
+            @using (Html.BeginForm("Index", "Estimate", FormMethod.Post, new { @class = "row g-3" }))
             {
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly"></div>
-                <input asp-for="EstimateNo" type="hidden" class="form-control" value="@Model.EstimateNo" />
+                <input type="hidden" asp-for="EstimateNo" value="@Model.EstimateNo" />
                 <div class="col-md-6">
                     <label for="VehicleName" class="form-label">Make</label>
                     @Html.DropDownListFor(m => m.VehicleName, vehiclesNames, "Choose...",new { @class = "form-select" })
@@ -66,16 +66,21 @@
                             @foreach (var item in policies)
                             {
                                 <div class="form-check">
-                                    @if (item.PolicyId.Equals(Model.PolicyId))
+                                    @if (item.PolicyId == Model.PolicyId)
                                     {
-                                        <input checked type="radio" name="PolicyType" id="policyRadio_@item.PolicyId" value="@item.PolicyType" class="form-check-input">
+                                        <input checked type="radio" asp-for="PolicyId" id="policyRadio_@item.PolicyId" value="@item.PolicyId" class="form-check-input">
                                         <label class="form-check-label" for="policyRadio_@item.PolicyId" href="#collapse_@item.PolicyId" data-bs-toggle="collapse" aria-controls="@item.PolicyType" aria-expanded="false">
-                                            @item.PolicyType <small class="fw-light">@(item.PolicyType.Equals("Comprehensive") ? "(Most popular)" : "")</small>
+                                            @item.PolicyType 
+                                            <small class="fw-light">
+                                            @if(item.PolicyType.Equals("Comprehensive")){
+                                                    <span>(Most popular)</span>
+                                                }    
+                                            </small>
                                         </label>
                                     }
                                     else
                                     {
-                                        <input type="radio" name="PolicyType" id="policyRadio_@item.PolicyId" value="@item.PolicyType" class="form-check-input">
+                                        <input type="radio" asp-for="PolicyId" id="policyRadio_@item.PolicyId" value="@item.PolicyId" class="form-check-input">
                                         <label class="form-check-label" for="policyRadio_@item.PolicyId" href="#collapse_@item.PolicyId" data-bs-toggle="collapse" aria-controls="@item.PolicyType" aria-expanded="false">
                                             @item.PolicyType  <small class="fw-light">@(item.PolicyType.Equals("Comprehensive") ? "(Most popular)" : "")</small>
                                         </label>
@@ -128,14 +133,6 @@
                     <input asp-for="PolicyDate" type="date" min="@DateTime.Today.Date.ToString("yyyy-MM-dd")" max="@DateTime.Today.AddDays(42).ToString("yyyy-MM-dd")" class="form-control w-50" />
                     <span asp-validation-for="PolicyDate" class="text-danger small"></span>
                 </div>
-                @*               <div class="col-12">
-            <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="gridCheck">
-            <label class="form-check-label" for="gridCheck">
-            Options
-            </label>
-            </div>
-            </div>*@
                 @if (Model.EstimateNo != 0)
                 {
                     <div style="background-color:rgb(255, 255,255);" class=" border border-top text-dark fixed-bottom py-2">
@@ -165,7 +162,6 @@
                     </div>
                 }
                 <div class="col-12">
-                    @*onclick="SubmitEstimateForm()"*@
                     <input id="btnEstimate" class="btn btn-primary" type="submit" value="Estimate">
                 </div>
             }

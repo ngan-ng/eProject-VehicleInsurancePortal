@@ -90,15 +90,28 @@ namespace VehicleInsuranceAPI.Controllers
 
         [HttpGet]
         [Route("GetCustomer/{id}")]
-        public IActionResult GetCustomer(int id)
+        public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
-            return Ok(_context.Customers.Where(c => c.Id == id)
-                            .Select(c => new {
-                                CustomerEmail = c.CustomerEmail,
-                                CustomerName = c.CustomerName,
-                                CustomerPhone = c.CustomerPhone,
-                                CustomerAddress = c.CustomerAddress
-                            }).FirstOrDefault());
+            var customer = await _context.Customers.Where(p=>p.Id == id).FirstOrDefaultAsync();
+            if(customer == null)
+            {
+                return BadRequest();
+            }
+            return customer;
         }
+
+        //[HttpGet]
+        //[Route("GetCustomer/{id}")]
+        //public IActionResult GetCustomer(int id)
+        //{
+        //    return Ok(_context.Customers.Where(c => c.Id == id)
+        //                    .Select(c => new
+        //                    {
+        //                        CustomerEmail = c.CustomerEmail,
+        //                        CustomerName = c.CustomerName,
+        //                        CustomerPhone = c.CustomerPhone,
+        //                        CustomerAddress = c.CustomerAddress
+        //                    }).FirstOrDefault());
+        //}
     }
 }

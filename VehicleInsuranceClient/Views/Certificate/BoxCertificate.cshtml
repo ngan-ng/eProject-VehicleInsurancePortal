@@ -2,7 +2,7 @@
     Layout = null;
 }
 
-@model CertificatesModel
+@model CertificateModel
 
 <div class="d-flex cert mb-3">
     <svg class="align-self-center mx-4" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -13,6 +13,11 @@
             <p class="m-0">@Model.VehicleName @Model.VehicleModel @Model.VehicleVersion</p>
         <p class="m-0">policy No. @Model.PolicyNo - expires @Model.PolicyDate.ToString("MM/dd/yyyy")</p>
     </div>
-
-    <a class="btn btn-outline-warning align-self-center me-4 px-4" href="@Url.Action("","", new { id = Model.Id })">View details</a>
+    <input type="hidden" id="bill_@Model.PolicyNo" value="@Model.PolicyNo" />
+    @if(Model.VehicleWarranty.Equals("Pending"))
+    {
+        <a class="btn btn-warning align-self-center me-4 px-4" href="@Url.Action("Details","Certificate", new { id = Model.Id })">Pay Now</a>
+    }else{
+        <a class="btn btn-outline-warning align-self-center me-4 px-4" href="@Url.Action("Details","Certificate", new { id = Model.Id })">View details</a>
+    }
 </div>
