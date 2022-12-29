@@ -2,9 +2,12 @@
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using NuGet.Packaging.Signing;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using VehicleInsuranceClient.Helper;
 using VehicleInsuranceClient.Models;
 using VehicleInsuranceClient.Models.Dtos;
 
@@ -13,7 +16,11 @@ namespace VehicleInsuranceClient.Controllers
     public class CertificateController : Controller
     {
         public static List<CertificateModel> Certificates = new List<CertificateModel>();
-
+        private readonly IWebHostEnvironment _env;
+        public CertificateController(IWebHostEnvironment env)
+        {
+            _env = env;
+        }
         public IActionResult Index()
         {
             return View();
@@ -37,6 +44,13 @@ namespace VehicleInsuranceClient.Controllers
             if (Certificates == null)
             {
                 Certificates = InitializeCertificates();
+            }
+            // Check Login
+            var userString = HttpContext.Session.GetString("user");
+            if (userString == null)
+            {
+                string returnUrl = HttpContext.Request.Path;
+                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
             }
 
             CertificateModel model = Certificates.Where(c => c.Id == id).FirstOrDefault();
@@ -93,21 +107,14 @@ namespace VehicleInsuranceClient.Controllers
             try
             {
                 // Check Login
+                var userString = HttpContext.Session.GetString("user");
+                if (userString == null)
+                {
+                    string returnUrl = HttpContext.Request.Path;
+                    return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
+                }
+                CustomerDto customer = JsonSerializer.Deserialize<CustomerDto>(userString);
 
-
-                // Logged in
-                //string customerStr = HttpContext.Session.GetString("user");
-                //if (String.IsNullOrEmpty(customerStr))
-                //{
-                //    return RedirectToAction("Login", "Account");
-                //}
-                //var logincustomer = JsonSerializer.Deserialize<CustomerDto>(customerStr);
-                //if (logincustomer == null)
-                //{
-                //    return RedirectToAction("Login", "Account");
-                //}
-
-                CustomerContractModel customer = GetCustomer(1);
                 if (customer == null)
                 {
                     return RedirectToAction("Login", "Account");
@@ -151,8 +158,19 @@ namespace VehicleInsuranceClient.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateCertificate(ContractModel model)
+        public IActionResult Contract(ContractModel model)
         {
+            var userString = HttpContext.Session.GetString("user");
+            if (userString == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            // CHECKLOGIN
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             string estimateNo = model.Estimation.EstimateNo.ToString();
             if (String.IsNullOrEmpty(estimateNo))
             {
@@ -166,40 +184,91 @@ namespace VehicleInsuranceClient.Controllers
                 return RedirectToAction("Index", "Estimate");
             }
 
-            ContractModel certificate = JsonSerializer.Deserialize<ContractModel>(contractCookie.Normalize())!;
-            certificate.Contract = model.Contract;
-            TimeSpan remain = DateTime.Now.Subtract((DateTime)certificate.Estimation.EstimateDate);
-            CookieOptions options = new CookieOptions()
+            // Save the input information of the contract into the same cookie. BUT without IFormFile type
+            // Purpose: In case errors occur while creating Certificate, customer will not loss the contract form information they did input.
+            IFormFileCollection proveFiles = model.Contract.Prove;
+            if (proveFiles == null)
             {
-                Expires = DateTime.Now.AddDays(Program.CookieEstimateDuration - remain.TotalDays),
-                Secure = true,
-                SameSite = SameSiteMode.None
-            };
+                return View(model);
+            }
+            model.Contract.Prove = null;
+            CookieHelper.CreateCookie(HttpContext, estimateNo.ToString(), model);
 
-            // Save the input information of the contract into the same cookie.
-            // Purpose: In case errors occur while creating Certificate, customer will not loss the contract form information.
-            Response.Cookies.Append(model.Estimation.EstimateNo.ToString(), JsonSerializer.Serialize(certificate), options);
             try
             {
-                // Post create Certificate to database
-                int policyNo = StoreCertificate(model);
+                #region Upload prove images
+                string pathImages = SaveImages(proveFiles);
+                if (String.IsNullOrWhiteSpace(pathImages))
+                {
+                    return View(model);
+                }
+                #endregion Upload prove images
+
+                #region Post create Certificate to database
+                int policyNo = StoreCertificate(model, pathImages);
                 if (policyNo <= 0)
                 {
                     TempData["EstimateNoErrMessage"] = "Something wrong with your estimate! Please get another!";
-                    return RedirectToAction("Index", "Estimate");
+                    return View();
                 }
+                #endregion Post create Certificate to database
             }
             catch (Exception)
             {
                 TempData["EstimateNoErrMessage"] = "Something wrong with your estimate! Please get another!";
-                RemoveCookie(estimateNo.ToString());
                 return RedirectToAction("Index", "Estimate");
             }
-
-            return RedirectToAction("Contract");
+            // In case create certificate and upload prove images successfully. Remove the cookie.
+            CookieHelper.RemoveCookie(HttpContext, estimateNo.ToString());
+            return RedirectToAction("Index");
         }
+        private string SaveImages(IFormFileCollection files)
+        {
+            string resultImagesPath = String.Empty;
+            if (files == null) return resultImagesPath;
+            Regex regex = new Regex(@"[. ^ $ * + - ? ( ) [ \] { } \ | / & ! @ # % ]");
+            foreach (IFormFile file in files)
+            {
+                if(file.Length == 0 || file == null)
+                {
+                    return resultImagesPath;
+                }
+                if (regex.IsMatch(file.FileName))
+                {
+                    ViewBag.InvalidNameImage = "Image name cannot contain special letters";
+                    return resultImagesPath;
+                }
+            }
+            // Check if directory for prove images didn't exist in Web App. Create new one
+            string datePath = DateTime.Now.ToString("yyyMMdd");
+            string directory = Path.Combine("img", "proveGallery", datePath);
+            string filePath = Path.Combine(_env.WebRootPath, directory);
+            if (!Directory.Exists(filePath))
+            {
+                Directory.CreateDirectory(filePath);
+            }
 
-        public int StoreCertificate(ContractModel model)
+            string guid = Guid.NewGuid().ToString("N");
+            foreach (IFormFile file in files)
+            {
+                string extension = String.Empty;
+                if (!Path.HasExtension(file.FileName))
+                {
+                    extension = Path.GetExtension(file.FileName);
+                }
+                string imgPath = Path.Combine(filePath, guid+"&" + file.FileName + extension);
+                using (var fileStream = new FileStream(imgPath, FileMode.Create, FileAccess.Write))
+                {
+                    file.CopyTo(fileStream);
+                }
+                resultImagesPath += "&" + file.FileName + extension;
+            }
+
+            resultImagesPath = datePath+"/" + guid + resultImagesPath;
+
+            return resultImagesPath;
+        }
+        private int StoreCertificate(ContractModel model, string pathImages)
         {
             int result;
             int policyNo;
@@ -229,7 +298,7 @@ namespace VehicleInsuranceClient.Controllers
                     VehicleBodyNumber = model.Contract.VehicleBodyNumber,
                     VehicleEngineNumber = model.Contract.VehicleEngineNumber,
                     VehicleWarranty = "Pending",
-                    Prove = "",
+                    Prove = pathImages,
                     Customer = new
                     {
                         Id = customerId,
@@ -273,7 +342,7 @@ namespace VehicleInsuranceClient.Controllers
                 result = JsonSerializer.Deserialize<int>(data);
                 if (result >= 0)
                 {
-                    RemoveCookie(model.Estimation.EstimateNo.ToString());
+                    CookieHelper.RemoveCookie(HttpContext, model.Estimation.EstimateNo.ToString());
                     return policyNo;
                 }
             }
@@ -283,19 +352,6 @@ namespace VehicleInsuranceClient.Controllers
                 throw;
             }
             return -1;
-        }
-
-        /// <summary>
-        /// This method is to remove Cookie based on key
-        /// </summary>
-        /// <param name="key"></param>
-        public void RemoveCookie(string key)
-        {
-            CookieOptions options = new CookieOptions
-            {
-                Expires = DateTime.Now.AddDays(-1)
-            };
-            Response.Cookies.Append(key, String.Empty, options);
         }
 
     }// End of Controller

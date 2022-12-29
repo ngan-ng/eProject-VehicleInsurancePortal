@@ -73,7 +73,7 @@ namespace VehicleInsuranceClient
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
             app.UseCors(x => x.AllowAnyOrigin()
                   .AllowAnyMethod()
                   .AllowAnyHeader());

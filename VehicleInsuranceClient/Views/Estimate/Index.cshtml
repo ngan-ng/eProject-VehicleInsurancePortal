@@ -14,23 +14,22 @@
         <h3 class="fw-semibold text-light">Your Car Insurance Quote Estimate</h3>
     </div>
 
-    <div class="container w-50 bg-white p-3 rounded" style="margin-top:-58px;">
-        <h3 class="pb1">
-            Your Estimate
-        </h3>
+    <div class="container w-50 bg-white p-5 rounded-0" style="margin-top:-80px;">
+        <h2 class="mb-2 fw-bold" style="opacity:0.8;">
+            Your estimate
+        </h2>
         @{
             string estimateNoErrMessage = TempData["EstimateNoErrMessage"] as string;
             if (!String.IsNullOrEmpty(estimateNoErrMessage))
             {
-                <input id="estimateNoErrMessage" type="hidden" value="@estimateNoErrMessage" />
+                                            <input id="estimateNoErrMessage" type="hidden" value="@estimateNoErrMessage" />
             }
         }
-        <hr class="bg-warning pt-0 mt-0" />
+        <hr class="pt-0 mt-0 border border-warning" style="height: 2.5px; background-color: rgb(247, 218, 43);box-shadow: 0px 0px -0.1px black;" />
         <div>
             <span class="d-flex">
                 Your car
             </span>
-            @*<form class="row g-3" id="EstimateForm" method="post" enctype="multipart/form-data" asp-controller="Estimate" asp-action="Estimate">*@
             @using (Html.BeginForm("Index", "Estimate", FormMethod.Post, new { @class = "row g-3" }))
             {
                 @Html.AntiForgeryToken()
@@ -154,7 +153,7 @@
                                     </div>
                                     <small class="d-block text-secondary">Estimate valid until @Model.EstimateDate.Value.AddDays(Program.CookieEstimateDuration).ToString("ddMMMyyyy")</small>
                                 </div>
-                                <a asp-controller="Certificate" asp-action="Contract" asp-route-estimateNo="@Model.EstimateNo" id="btn_buynow" class="align-self-center btn btn_estimate rounded-1" style="background-color: rgb(238, 209, 46);" role="button">
+                                <a asp-protocol="Https" asp-controller="Certificate" asp-action="Contract" asp-route-estimateNo="@Model.EstimateNo" id="btn_buynow" class="align-self-center btn btn_estimate rounded-1" style="background-color: rgb(238, 209, 46);" role="button">
                                     <small style="font-size: 12px;">BUY NOW</small>
                                 </a>
                             </div>
@@ -162,12 +161,12 @@
                     </div>
                 }
                 <div class="col-12">
-                    <input id="btnEstimate" class="btn btn-primary" type="submit" value="Estimate">
+                    <input id="btnEstimate" class="btn btn_estimate rounded-1" type="submit" value="Estimate">
                 </div>
             }
         </div>
 
-        <a class="btn btn-sm btn-outline-secondary mt-2 text-decoration-underline" asp-action="Index" asp-controller="Home">Back to List</a>
+        <a class="btn btn-sm btn-outline-secondary p-2 mt-2 text-decoration-underline" asp-action="Index" asp-controller="Home">Back to List</a>
     </div>
 </div>
 

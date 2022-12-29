@@ -35,12 +35,12 @@ namespace VehicleInsuranceClient.Controllers
         {
             if (!string.IsNullOrEmpty(returnUrl))
             {
-                ViewBag.returnUrdl = returnUrl;
+                ViewBag.returnUrl = returnUrl;
                 return View();
             }
             else
             {
-                ViewBag.returnUrdl = "";
+                ViewBag.returnUrl = "";
                 return View();
             }
 
@@ -63,22 +63,24 @@ namespace VehicleInsuranceClient.Controllers
                     var customer = JsonConvert.DeserializeObject<CustomerDto>(await res.Content.ReadAsStringAsync());
                     if (customer != null)
                     {
-                            //await client.PutAsJsonAsync<DataAccess.Models.Customer>(urlCustomer, res);
-                            var claim = new List<Claim>();
-                            claim.Add(new Claim(ClaimTypes.Email, customer.CustomerEmail));
-                            claim.Add(new Claim(ClaimTypes.NameIdentifier, customer.Id.ToString()));
-                            claim.Add(new Claim(ClaimTypes.Role, UserRoles.User));
-                        new Claim("userid", customer.CustomerEmail);
-                            var claimIdentify = new ClaimsIdentity(claim, CookieAuthenticationDefaults.AuthenticationScheme);
-                            var claimPrincipal = new ClaimsPrincipal(claimIdentify);
-                            await HttpContext.SignInAsync(claimPrincipal);
-                            return Json(new { status = true, msg = LoginMessages.Suscess, url = returnUrl });
+                        //luu session
+                        var str = JsonConvert.SerializeObject(customer);
+                        HttpContext.Session.SetString("user", str);
+                        ViewBag.msg = string.Format("Login successfull");
+                        ViewBag.user = customer;
+                        if(returnUrl != null)
+                        {
+                            return Redirect(returnUrl);
+                        }
+                        return RedirectToAction("Index", "Certificate");
                     }
                     else
                     {
-                        return Json(new { status = false, msg = LoginMessages.Incorrect });
+                        ViewBag.msg = string.Format("Customer email or password incorrect.Please re-enter");
+                        return View();
                     }
                 }
+                ViewBag.msg = string.Format("Customer email or password incorrect.Please re-enter");
                 return View();
             }
             catch (Exception ex)

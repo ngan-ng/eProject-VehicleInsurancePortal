@@ -31,7 +31,7 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg pb-3">
 
-            <a href="#" class="navbar-brand">X</a>
+            <a href="#" class="navbar-brand"><img src="~/img/logo/logo.png" asp-append-version="true" style="width:150px;" /></a>
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#res_nav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -61,20 +61,20 @@
                 @{
                     if (User.Identity.IsAuthenticated)
                     {
-                        <input type="hidden" value="@User.Identity.AuthenticationType" id="CustomerId" />
-                        <ul class="navbar-nav ms-5">
-                            <li>
-                                <a asp-controller="Account" asp-action="Logout" class="btn btn-primary">Logout</a>
-                            </li>
-                        </ul>
+                            <input type="hidden" value="@User.Identity.AuthenticationType" id="CustomerId" />
+                            <ul class="navbar-nav ms-5">
+                                <li>
+                                    <a asp-controller="Account" asp-action="Logout" class="btn btn-primary">Logout</a>
+                                </li>
+                            </ul>
                     }
                     else
                     {
-                        <ul class="navbar-nav ms-5">
-                            <li>
-                                <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Log In</a>
-                            </li>
-                        </ul>
+                            <ul class="navbar-nav ms-5">
+                                <li>
+                                    <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Log In</a>
+                                </li>
+                            </ul>
                     }
                 }
             </div>  <!-- End of Collapsing Menu and Links -->

@@ -37,12 +37,17 @@ $(document).ready(function () {
         $("#checkBoxAgreeErr").addClass("d-none");
     }
 
-    // **** End of Toan Zone ****
-
     // Annouce if customer not make an estimate yet
     if ($("#estimateNoErrMessage").length) {
         alert($("#estimateNoErrMessage").val());
     }
+    // Annouce if image prove has problems
+    if ($("#ContractErrMessage").length) {
+        alert($("#ContractErrMessage").val());
+    }
+
+    // **** End of Toan Zone ****
+
 
     // **** Ngan Zone ****
     $.ajax({

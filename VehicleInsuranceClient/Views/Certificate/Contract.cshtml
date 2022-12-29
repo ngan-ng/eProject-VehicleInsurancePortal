@@ -11,7 +11,7 @@
             <span>Reference Number: </span><span><strong>@Html.DisplayFor(m=>m.Estimation.EstimateNo)</strong></span>
         </h4>
     </div>
-    @using (Html.BeginForm("CreateCertificate", "Certificate", FormMethod.Post, new { enctype = "multipart/form-data", @id = "formContract" }))
+    @using (Html.BeginForm("Contract", "Certificate", FormMethod.Post, new { enctype = "multipart/form-data", @id = "formContract" }))
     {
         <div class="row">
             <div class="col-md-6 p-5 pt-4 ">
@@ -59,8 +59,12 @@
                         </div>
                         <div class="col-md-6">
                             <label for="Prove" class="form-label">Documents</label>
-                            @Html.TextBoxFor(m=>m.Contract.Prove, new {  type="file", title="", @class = "form-control" })
+                            @Html.TextBoxFor(m=>m.Contract.Prove, new {  type="file", @multiple = "multiple", @class = "form-control" })
                             <p><span asp-validation-for="Contract.Prove" class="text-danger small"></span></p>
+                            @if (ViewBag.InvalidNameImage != null)
+                            {
+                                <p><span class="text-danger small">@ViewBag.InvalidNameImage</span></p>
+                            }
                         </div>
                     </div>
                     <hr />

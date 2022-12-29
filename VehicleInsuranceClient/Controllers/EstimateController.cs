@@ -100,9 +100,10 @@ namespace VehicleInsuranceClient.Controllers
                             }
                             model.EstimateNo = int.Parse(builder.ToString(0, digits));
                         }
-                        ContractModel contract = new ContractModel { Estimation = model, Contract = new Contract () };
+                        ContractModel contract = new ContractModel { Estimation = model, Contract = new Contract() };
                         contract.Contract.CustomerName = String.Empty;
-                        CreateCookie(model.EstimateNo.ToString(), JsonSerializer.Serialize(contract));
+
+                        Helper.CookieHelper.CreateCookie(HttpContext, model.EstimateNo.ToString(), contract);
                     }
                     catch (Exception)
                     {
@@ -140,7 +141,7 @@ namespace VehicleInsuranceClient.Controllers
             {
                 throw;
             }
-            return Vehicles?? new List<VehicleViewModel>();
+            return Vehicles ?? new List<VehicleViewModel>();
         }
         public static List<PoliciesViewModel> InitializePolicies()
         {
@@ -161,22 +162,6 @@ namespace VehicleInsuranceClient.Controllers
                 throw;
             }
             return Policies ?? new List<PoliciesViewModel>();
-        }
-        /// <summary>
-        /// This method is to create Cookie based on key and value 
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        public void CreateCookie(string key, string value)
-        {
-            CookieOptions options = new CookieOptions()
-            {
-                //Expires = DateTime.Now.AddMinutes(5)
-                Expires = DateTime.Now.AddDays(Program.CookieEstimateDuration),
-                Secure = true,
-                SameSite = SameSiteMode.None
-            };
-            Response.Cookies.Append(key, value, options);
         }
 
     } // End of EstimateController
