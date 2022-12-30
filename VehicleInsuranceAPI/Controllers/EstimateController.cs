@@ -140,7 +140,7 @@ namespace VehicleInsuranceAPI.Controllers
         public IActionResult CreateVehicle(Vehicle model)
         {
             _db.Vehicles.Add(model);
-            if(_db.SaveChanges() > 0)
+            if (_db.SaveChanges() > 0)
             {
                 return Ok(model);
             }

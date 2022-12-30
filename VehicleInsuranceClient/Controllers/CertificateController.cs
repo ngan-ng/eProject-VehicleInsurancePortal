@@ -1,8 +1,6 @@
 ﻿
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using NuGet.Packaging.Signing;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -17,19 +15,27 @@ namespace VehicleInsuranceClient.Controllers
     {
         public static List<CertificateModel> Certificates = new List<CertificateModel>();
         private readonly IWebHostEnvironment _env;
+        HttpClient httpClient = new HttpClient();
+    
         public CertificateController(IWebHostEnvironment env)
         {
             _env = env;
         }
+
         public IActionResult Index()
         {
-            // Check Login
             var userString = HttpContext.Session.GetString("user");
             if (userString == null)
             {
-                string returnUrl = HttpContext.Request.Path;
-                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
+                return RedirectToAction("Login", "Account");
             }
+
+            var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<Customer>(userString);
+            var userResult = Newtonsoft.Json.JsonConvert.DeserializeObject<CustomerDto>
+                (httpClient.GetStringAsync(@Program.ApiAddress + "/Customer/" + obj.Id).Result);
+            ViewBag.userID = userResult.Id;
+            ViewBag.userName = userResult.CustomerName;
+
             return View();
         }
 
@@ -45,13 +51,13 @@ namespace VehicleInsuranceClient.Controllers
             return View("ListCertificates", model);
         }
 
-        [HttpGet]
         public IActionResult Details(int id)
         {
             if (Certificates == null)
             {
                 Certificates = InitializeCertificates();
             }
+
             // Check Login
             var userString = HttpContext.Session.GetString("user");
             if (userString == null)
@@ -70,9 +76,8 @@ namespace VehicleInsuranceClient.Controllers
             return View(model);
         }
 
-        private static List<CertificateModel> InitializeCertificates()
+        private List<CertificateModel> InitializeCertificates()
         {
-            HttpClient httpClient = new HttpClient();
             var response = httpClient.GetAsync(Program.ApiAddress + "/Certificate/GetCertificates").Result;
             var data = response.Content.ReadAsStringAsync().Result;
             if (data != null)
@@ -86,13 +91,6 @@ namespace VehicleInsuranceClient.Controllers
 
         public IActionResult Print(int id)
         {
-            // Check Login
-            var userString = HttpContext.Session.GetString("user");
-            if (userString == null)
-            {
-                string returnUrl = HttpContext.Request.Path;
-                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
-            }
             CertificateModel model = Certificates.Where(c => c.Id == id).FirstOrDefault();
 
             return View(model);
@@ -139,7 +137,7 @@ namespace VehicleInsuranceClient.Controllers
                 contract.Contract.CustomerPhone = customer.CustomerPhone;
                 contract.Contract.CustomerAddress = customer.CustomerAddress;
 
-                ViewBag.PolicyType = EstimateController.InitializePolicies().Where(p => p.PolicyId == contract.Estimation.PolicyId).Select(m => m.PolicyType).FirstOrDefault();
+                ViewBag.PolicyType = EstimateController.Instance.GetPolicies().Where(p => p.PolicyId == contract.Estimation.PolicyId).Select(m => m.PolicyType).FirstOrDefault();
             }
             catch (Exception)
             {
@@ -149,39 +147,22 @@ namespace VehicleInsuranceClient.Controllers
 
             return View(contract);
         }
-        public CustomerContractModel? GetCustomer(int id)
-        {
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    var response = client.GetAsync(Program.ApiAddress + "/Customer/GetCustomer/" + id).Result;
-                    var data = response.Content.ReadAsStringAsync().Result;
-                    if (data != null)
-                    {
-                        CustomerContractModel model = JsonSerializer.Deserialize<CustomerContractModel>(data)!;
-                        return model;
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
-            return null;
-        }
 
+        /// <summary>
+        /// Create Certificate after customer submit Contract form
+        /// </summary>
+        /// <param name="model">Contract</param>
+        /// <returns>Certificates of a customer</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Contract(ContractModel model)
         {
-            // CHECKLOGIN
-            // Check Login
             var userString = HttpContext.Session.GetString("user");
             if (userString == null)
             {
-                string returnUrl = HttpContext.Request.Path;
-                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
+                return RedirectToAction("Login", "Account");
             }
+            // CHECKLOGIN
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -245,7 +226,7 @@ namespace VehicleInsuranceClient.Controllers
             Regex regex = new Regex(@"[. ^ $ * + - ? ( ) [ \] { } \ | / & ! @ # % ]");
             foreach (IFormFile file in files)
             {
-                if(file.Length == 0 || file == null)
+                if (file.Length == 0 || file == null)
                 {
                     return resultImagesPath;
                 }
@@ -272,7 +253,7 @@ namespace VehicleInsuranceClient.Controllers
                 {
                     extension = Path.GetExtension(file.FileName);
                 }
-                string imgPath = Path.Combine(filePath, guid+"&" + file.FileName + extension);
+                string imgPath = Path.Combine(filePath, guid + "&" + file.FileName + extension);
                 using (var fileStream = new FileStream(imgPath, FileMode.Create, FileAccess.Write))
                 {
                     file.CopyTo(fileStream);
@@ -280,7 +261,7 @@ namespace VehicleInsuranceClient.Controllers
                 resultImagesPath += "&" + file.FileName + extension;
             }
 
-            resultImagesPath = datePath+"/" + guid + resultImagesPath;
+            resultImagesPath = datePath + "/" + guid + resultImagesPath;
 
             return resultImagesPath;
         }
@@ -369,6 +350,5 @@ namespace VehicleInsuranceClient.Controllers
             }
             return -1;
         }
-
     }// End of Controller
 }

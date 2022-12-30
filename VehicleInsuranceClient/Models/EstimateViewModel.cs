@@ -37,7 +37,7 @@ namespace VehicleInsuranceClient.Models
 
         [DataType(DataType.Date)]
         public DateTime? PolicyDate { get; set; } = null!;
-   
+
         public int PolicyDuration { get; set; } = 12;
 
         public decimal? Premium { get; set; }

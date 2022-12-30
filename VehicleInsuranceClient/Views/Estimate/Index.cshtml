@@ -22,7 +22,7 @@
             string estimateNoErrMessage = TempData["EstimateNoErrMessage"] as string;
             if (!String.IsNullOrEmpty(estimateNoErrMessage))
             {
-                                            <input id="estimateNoErrMessage" type="hidden" value="@estimateNoErrMessage" />
+                <input id="estimateNoErrMessage" type="hidden" value="@estimateNoErrMessage" />
             }
         }
         <hr class="pt-0 mt-0 border border-warning" style="height: 2.5px; background-color: rgb(247, 218, 43);box-shadow: 0px 0px -0.1px black;" />
@@ -69,11 +69,12 @@
                                     {
                                         <input checked type="radio" asp-for="PolicyId" id="policyRadio_@item.PolicyId" value="@item.PolicyId" class="form-check-input">
                                         <label class="form-check-label" for="policyRadio_@item.PolicyId" href="#collapse_@item.PolicyId" data-bs-toggle="collapse" aria-controls="@item.PolicyType" aria-expanded="false">
-                                            @item.PolicyType 
+                                            @item.PolicyType
                                             <small class="fw-light">
-                                            @if(item.PolicyType.Equals("Comprehensive")){
+                                                @if (item.PolicyType.Equals("Comprehensive"))
+                                                {
                                                     <span>(Most popular)</span>
-                                                }    
+                                                }
                                             </small>
                                         </label>
                                     }

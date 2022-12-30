@@ -5,7 +5,7 @@ namespace VehicleInsuranceClient
     public class Program
     {
         public static string ApiAddress = "https://localhost:7008/api";
-        public static double CookieEstimateDuration = 14;
+        public static short CookieEstimateDuration = 14;
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -73,7 +73,9 @@ namespace VehicleInsuranceClient
             app.UseStaticFiles();
 
             app.UseRouting();
+
             app.UseSession();
+
             app.UseCors(x => x.AllowAnyOrigin()
                   .AllowAnyMethod()
                   .AllowAnyHeader());

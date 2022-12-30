@@ -13,5 +13,6 @@
         public long CustomerPhone { get; set; }
 
         public string Password { get; set; }
+        public string? ChangePassword { get; set; }
     }
 }

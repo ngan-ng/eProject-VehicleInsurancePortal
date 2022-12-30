@@ -25,6 +25,7 @@ namespace VehicleInsuranceClient.Models
         public decimal? Premium { get; set; }
         public string? Prove { get; set; }
     }
+
     public class ContractModel
     {
         public Contract? Contract { get; set; } = null!;
@@ -55,5 +56,4 @@ namespace VehicleInsuranceClient.Models
         [Required(ErrorMessage = "Images of prove is required")]
         public IFormFileCollection Prove { get; set; } = null!;
     }
-    
 }

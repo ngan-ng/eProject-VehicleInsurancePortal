@@ -22,7 +22,7 @@ $(document).ready(function () {
     }
     // Checkbox for agreement of certificate contract
     $("#formContract").on("submit", function (e) {
-        
+
         if ($("#checkBoxAgree").is(":checked") == false) {
             e.preventDefault();
             alert("Please agree with our terms and conditions!");
@@ -53,7 +53,7 @@ $(document).ready(function () {
     $.ajax({
         url: apiurl + "/Policy/GetPolicies",
         type: "GET",
-        data: { },
+        data: {},
         success: function (result) {
             GetViewHomePolicies(result);
         }
