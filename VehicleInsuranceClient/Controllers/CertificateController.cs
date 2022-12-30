@@ -23,6 +23,13 @@ namespace VehicleInsuranceClient.Controllers
         }
         public IActionResult Index()
         {
+            // Check Login
+            var userString = HttpContext.Session.GetString("user");
+            if (userString == null)
+            {
+                string returnUrl = HttpContext.Request.Path;
+                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
+            }
             return View();
         }
 
@@ -79,6 +86,13 @@ namespace VehicleInsuranceClient.Controllers
 
         public IActionResult Print(int id)
         {
+            // Check Login
+            var userString = HttpContext.Session.GetString("user");
+            if (userString == null)
+            {
+                string returnUrl = HttpContext.Request.Path;
+                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
+            }
             CertificateModel model = Certificates.Where(c => c.Id == id).FirstOrDefault();
 
             return View(model);
@@ -160,12 +174,14 @@ namespace VehicleInsuranceClient.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Contract(ContractModel model)
         {
+            // CHECKLOGIN
+            // Check Login
             var userString = HttpContext.Session.GetString("user");
             if (userString == null)
             {
-                return RedirectToAction("Login", "Account");
+                string returnUrl = HttpContext.Request.Path;
+                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
             }
-            // CHECKLOGIN
             if (!ModelState.IsValid)
             {
                 return View(model);
