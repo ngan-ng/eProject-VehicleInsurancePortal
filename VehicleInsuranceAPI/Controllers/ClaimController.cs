@@ -1,13 +1,9 @@
 ﻿using DataAccess.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 using VehicleInsuranceAPI.IResponsitory;
-using VehicleInsuranceAPI.Models.Dtos;
 using VehicleInsuranceAPI.Models;
-using static System.Reflection.Metadata.BlobBuilder;
+using VehicleInsuranceAPI.Models.Dtos;
 
 namespace VehicleInsuranceAPI.Controllers
 {

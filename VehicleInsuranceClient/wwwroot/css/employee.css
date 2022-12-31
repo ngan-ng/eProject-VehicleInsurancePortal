@@ -113,6 +113,7 @@ body {
         border-bottom: 3px solid #5d5c61;
         position: fixed;
         width: calc(100% - 300px);
+        z-index:5;
     }
 
         #header .navigation .search {
@@ -153,6 +154,13 @@ body {
     font-size: 24px;
     font-weight: 700;
     margin-top: 70px;
+}
+.cerTitle {
+    color: rgb(31, 89, 165);
+    padding: 20px 20px 0 20px;
+    font-size: 28px;
+    font-weight: 680;
+    margin-top: 30px;
 }
 
 /******************* Toggle button **********************/

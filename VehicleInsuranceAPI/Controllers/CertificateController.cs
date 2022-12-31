@@ -66,13 +66,12 @@ namespace VehicleInsuranceAPI.Controllers
         [Route("GetAllCertificates")]
         public IActionResult GetAllCertificates()
         {
-            List<CertificateAdminModel> model = new List<CertificateAdminModel>();
+            List<CertificateModel> model = new List<CertificateModel>();
             model = (from cer in _db.Certificates
-                     join cusbill in _db.CustomerBills on cer.PolicyNo equals cusbill.PolicyNo
                      join est in _db.Estimates on cer.EstimateNo equals est.EstimateNo
                      join cus in _db.Customers on cer.CustomerId equals cus.Id
                      join pol in _db.Policies on est.PolicyId equals pol.Id
-                     select new CertificateAdminModel
+                     select new CertificateModel
                      {
                          Id = cer.Id,
                          CustomerId = cus.Id,
@@ -91,7 +90,7 @@ namespace VehicleInsuranceAPI.Controllers
                          VehicleEngineNumber = cer.VehicleEngineNumber,
                          VehicleWarranty = cer.VehicleWarranty,
                          Prove = cer.Prove,
-                         Amount = cusbill.Amount
+                         Premium = est.Premium
                      }).ToList();
             return Ok(model);
         }
@@ -105,14 +104,13 @@ namespace VehicleInsuranceAPI.Controllers
         [Route("GetCertificateDetail/{CertId}")]
         public IActionResult GetCertificateDetail(int CertId)
         {
-            List<CertificateAdminModel> model = new List<CertificateAdminModel>();
+            CertificateModel model = new CertificateModel();
             model = (from cer in _db.Certificates
-                     join cusbill in _db.CustomerBills on cer.PolicyNo equals cusbill.PolicyNo
                      join est in _db.Estimates on cer.EstimateNo equals est.EstimateNo
                      join cus in _db.Customers on cer.CustomerId equals cus.Id
                      join pol in _db.Policies on est.PolicyId equals pol.Id
                      where cer.Id == CertId
-                     select new CertificateAdminModel
+                     select new CertificateModel
                      {
                          Id = cer.Id,
                          CustomerId = cus.Id,
@@ -121,7 +119,7 @@ namespace VehicleInsuranceAPI.Controllers
                          CustomerPhone = cus.CustomerPhone,
                          PolicyNo = cer.PolicyNo,
                          PolicyType = pol.PolicyType,
-                         PolicyDate = est.PolicyDate.AddMonths(12).AddDays(-1),
+                         PolicyDate = est.PolicyDate,
                          PolicyDuration = est.PolicyDuration,
                          VehicleName = est.VehicleName,
                          VehicleModel = est.VehicleModel,
@@ -131,9 +129,8 @@ namespace VehicleInsuranceAPI.Controllers
                          VehicleEngineNumber = cer.VehicleEngineNumber,
                          VehicleWarranty = cer.VehicleWarranty,
                          Prove = cer.Prove,
-                         Status = cusbill.Status,
-                         Amount = cusbill.Amount
-                     }).ToList();
+                         Premium = est.Premium
+                     }).FirstOrDefault()!;
             return Ok(model);
         }
 
@@ -149,7 +146,7 @@ namespace VehicleInsuranceAPI.Controllers
         //        CustomerEmail = model.CustomerEmail,
         //        CustomerAddress = model.CustomerAddress,
         //        CustomerPhone = model.CustomerPhone,
-        //        CustomerName= model.CustomerName,
+        //        CustomerName = model.CustomerName,
         //    };
 
         //    _db.Customers.Update(cus);
@@ -174,6 +171,37 @@ namespace VehicleInsuranceAPI.Controllers
                 return Ok(-1);
             }
             return BadRequest();
+        }
+
+        [HttpPut]
+        [Route("UpdateCertificate")]
+        public IActionResult UpdateCertificate(UpdateCertModel model)
+        {
+            var cert = _db.Certificates.Where(p => p.PolicyNo == model.PolicyNo).FirstOrDefault();
+            if(cert == null)
+            {
+                return NotFound();
+            }
+            var est = _db.Estimates.Where(e => e.EstimateNo == cert.EstimateNo).FirstOrDefault();
+            if (est == null)
+            {
+                return NotFound();
+            }
+            cert.VehicleNumber = model.VehicleNumber;
+            cert.VehicleBodyNumber = model.VehicleBodyNumber;
+            cert.VehicleEngineNumber = model.VehicleEngineNumber;
+            if (!String.IsNullOrWhiteSpace(model.VehicleWarranty))
+            {
+                cert.VehicleWarranty = model.VehicleWarranty;
+            }
+            est.PolicyDate = model.PolicyDate;
+            _db.Update(est);
+            _db.Update(cert);
+            if (_db.SaveChanges() <= 0)
+            {
+                return Ok("Fail");
+            }
+            return Ok("Success");
         }
     }
 }

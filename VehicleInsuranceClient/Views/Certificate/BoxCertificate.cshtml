@@ -17,7 +17,7 @@
     <input type="hidden" id="bill_@Model.PolicyNo" value="@Model.PolicyNo" />
     <input type="hidden" id="policyNo" value="@Model.PolicyNo" />
 
-    @if (Model.VehicleWarranty.Equals("Pending"))
+    @if (Model.VehicleWarranty.Equals("Not Available"))
     {
         <a class="btn btn-warning align-self-center me-4 px-4" href="@Url.Action("Details","Certificate", new { id = Model.Id })">Pay Now</a>
     }

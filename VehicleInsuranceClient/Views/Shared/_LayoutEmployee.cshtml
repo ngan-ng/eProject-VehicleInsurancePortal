@@ -39,7 +39,6 @@
 
     </section>
 
-    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
 
@@ -49,4 +48,5 @@
 <script type="text/javascript" src="~/lib/DataTables/js/datatables.min.js" asp-append-version="true"></script>
 <script src="~/js/employee.js" asp-append-version="true"></script>
 
-@await RenderSectionAsync("CustomJS", required: false)
+@await RenderSectionAsync("validateScripts", required: false)
+@await RenderSectionAsync("Scripts", required: false)

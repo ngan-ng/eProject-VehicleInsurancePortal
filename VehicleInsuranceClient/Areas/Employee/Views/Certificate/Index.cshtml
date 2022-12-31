@@ -1,5 +1,6 @@
-﻿@using VehicleInsuranceClient.Areas.Employee.Models;
-@model List<CertificateAdminModel>
+﻿@using VehicleInsuranceClient.Models;
+@model List<CertificateModel>
+
 <!-- Title -->
 <h3 class="title">Certificates</h3>
 
@@ -17,7 +18,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (CertificateAdminModel item in Model)
+            @foreach (CertificateModel item in Model)
             {
                 <tr>
                     <td>
@@ -39,7 +40,7 @@
                         @item.VehicleWarranty
                     </td>
                     <td>
-                        <a type="button" class="btn btn-info" href="@Url.Action("CertificateDetail", "Certificate", new { CertId=item.Id })">Details</a>
+                        <a type="button" class="btn m-2 btn-sm btn-warning" href="@Url.Action("CertificateDetail", "Certificate", new { CertId=item.Id })">Maintain</a>
                     </td>
                 </tr>
             }

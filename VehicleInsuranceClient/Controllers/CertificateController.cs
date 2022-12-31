@@ -27,7 +27,8 @@ namespace VehicleInsuranceClient.Controllers
             var userString = HttpContext.Session.GetString("user");
             if (userString == null)
             {
-                return RedirectToAction("Login", "Account");
+                string returnUrl = HttpContext.Request.Path;
+                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
             }
 
             var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<Customer>(userString);
@@ -160,7 +161,8 @@ namespace VehicleInsuranceClient.Controllers
             var userString = HttpContext.Session.GetString("user");
             if (userString == null)
             {
-                return RedirectToAction("Login", "Account");
+                string returnUrl = HttpContext.Request.Path;
+                return RedirectToAction("Login", "Account", new { returnUrl = returnUrl });
             }
             // CHECKLOGIN
             if (!ModelState.IsValid)
@@ -223,7 +225,7 @@ namespace VehicleInsuranceClient.Controllers
         {
             string resultImagesPath = String.Empty;
             if (files == null) return resultImagesPath;
-            Regex regex = new Regex(@"[. ^ $ * + - ? ( ) [ \] { } \ | / & ! @ # % ]");
+            Regex regex = new Regex(@"[~^$*+`?()>;[\]{}\|/&!@#%]");
             foreach (IFormFile file in files)
             {
                 if (file.Length == 0 || file == null)
@@ -233,6 +235,12 @@ namespace VehicleInsuranceClient.Controllers
                 if (regex.IsMatch(file.FileName))
                 {
                     ViewBag.InvalidNameImage = "Image name cannot contain special letters";
+                    return resultImagesPath;
+                }
+                string checkExtention = Path.GetExtension(file.FileName);
+                if (!(checkExtention.Equals(".png") || checkExtention.Equals(".jpg")|| checkExtention.Equals(".jpeg")))
+                {
+                    ViewBag.InvalidNameImage = "Only accept image types of jpg, png and jpeg";
                     return resultImagesPath;
                 }
             }
@@ -271,7 +279,9 @@ namespace VehicleInsuranceClient.Controllers
             int policyNo;
             byte digits = 9;
             // Get from Session
-            int customerId = 1;
+            var userString = HttpContext.Session.GetString("user");
+            CustomerDto customer = JsonSerializer.Deserialize<CustomerDto>(userString);
+            int customerId = customer.Id;
 
             StringBuilder builder = new StringBuilder();
             foreach (char c in Guid.NewGuid().ToString())
@@ -294,7 +304,7 @@ namespace VehicleInsuranceClient.Controllers
                     VehicleNumber = model.Contract.VehicleNumber,
                     VehicleBodyNumber = model.Contract.VehicleBodyNumber,
                     VehicleEngineNumber = model.Contract.VehicleEngineNumber,
-                    VehicleWarranty = "Pending",
+                    VehicleWarranty = "Not Available",
                     Prove = pathImages,
                     Customer = new
                     {
@@ -327,12 +337,6 @@ namespace VehicleInsuranceClient.Controllers
                         }
                     }
                 }), Encoding.UTF8, "application/json"); // End StringContent
-
-                StringContent stringContent2 = new StringContent(JsonSerializer.Serialize(new
-                {
-                    Contract = model.Contract,
-                    Estimation = model.Estimation
-                }), Encoding.UTF8, "application/json");// End StringContent2
 
                 var response = client.PostAsync(Program.ApiAddress + "/Certificate/CreateCertificate", stringContent).Result;
                 var data = response.Content.ReadAsStringAsync().Result;
