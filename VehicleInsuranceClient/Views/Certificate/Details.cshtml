@@ -107,7 +107,8 @@
                 else if (Model.VehicleWarranty == "Available")
                 {
                     <h5 class="pb-2">Print your certificate</h5>
-                    <a href="@Url.Action("Print","Certificate", new { Id = Model.Id })" class="btn btn-outline-info px-5 ">Print</a>
+                    @*<a href="@Url.Action("Print","Certificate", new { Id = Model.Id })" class="btn btn-outline-info px-5 ">Print</a>*@
+                    <a href="javascript:window.print()" class="btn btn-success"><i class="fa fa-print"></i></a>
                 }
                 else
                 {

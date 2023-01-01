@@ -603,7 +603,7 @@ footer {
 
 /*################################### Certificate Details #########################################*/
 #cer-details .card-wrapper {
-    margin: 0 300px;
+    margin: 0 20px;
     box-shadow: 0 4px 10px rgba(22, 28, 45, 0.1), 0 2px 4px 3px rgba(22, 28, 45, 0.1) !important;
 }
 
